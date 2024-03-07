@@ -6,7 +6,6 @@
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>Kasirin Aja</title>
-        <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
@@ -38,97 +37,115 @@
             </div>
         </section>
 
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="js/scripts.js"></script>
     </body>
 </html>
 <script>
-    function createButtons(amount) {
-        var buttonRow = document.getElementById("buttonRow");
-        buttonRow.innerHTML = "";
+  function createButtons(amount) {
+    var buttonRow = document.getElementById("buttonRow");
+    buttonRow.innerHTML = "";
+
+    if (amount > 100000) {
+        var buttonCol = document.createElement("div");
+        buttonCol.className = "col-md-4 mb-2";
+
+        var button = document.createElement("button");
+        button.className = "btn btn-Warning";
+        button.style.width = "100%";
+        button.innerHTML = "Uang Pas";
+
+        button.setAttribute("data-amount", paymentAmount); 
         
-        if (amount > 100000) {
-            var buttonCol = document.createElement("div");
-            buttonCol.className = "col-md-4 mb-2";
-            
-            var button = document.createElement("button");
-            button.className = "btn btn-primary";
-            button.style.width = "100%";
-            button.innerHTML = "Uang Pas";
-            
-            buttonCol.appendChild(button);
-            buttonRow.appendChild(buttonCol);
-        } else {
-            var buttonCol;
-            var button;
-            var denominations = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100];
-            var possiblePayments = [];
-            var remainingAmount = amount;
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
 
-            // Mengecek apakah jumlah pembelian sama dengan salah satu denominasi yang tersedia
-            if (!denominations.includes(remainingAmount)) {
-                // Membuat daftar kemungkinan pembayaran dari denominasi uang
-                for (var i = 0; i < denominations.length; i++) {
-                    var denomination = denominations[i];
-                    var difference = denomination - remainingAmount;
-                    if (difference >= 0) {
-                        possiblePayments.push(denomination);
-                    }
-                }
+            var selectedAmount = parseInt(this.getAttribute("data-amount"));
+            if (selectedAmount === amount) {
+                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString(), "success");
+            } else {
+                var change = selectedAmount - amount;
+                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString() + "\nKembalian: Rp " + change.toLocaleString(), "success");
+            }
+        });
 
-                // Menambahkan kombinasi penjumlahan pecahan uang yang memungkinkan
-                for (var i = 0; i < denominations.length; i++) {
-                    for (var j = i; j < denominations.length; j++) {
-                        var sum = denominations[i] + denominations[j];
-                        if (sum === remainingAmount && !possiblePayments.includes(sum)) {
-                            possiblePayments.push(sum);
-                        }
+        buttonCol.appendChild(button);
+        buttonRow.appendChild(buttonCol);
+    } else {
+        var buttonCol;
+        var button;
+        var denominations = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100];
+        var possiblePayments = [];
+
+        // Mencari denominasi yang lebih besar dari jumlah belanja dan tersedia
+        for (var i = denominations.length - 1; i >= 0; i--) {
+            if (denominations[i] >= amount) {
+                possiblePayments.push(denominations[i]);
+            }
+        }
+
+        // Menambahkan kombinasi penjumlahan pecahan uang yang memungkinkan dengan denominasi yang tersedia
+        for (var i = 0; i < denominations.length; i++) {
+            for (var j = 0; j < denominations.length; j++) {
+                var sum = denominations[i] + denominations[j];
+                // Memeriksa apakah kedua pecahan uang yang digunakan tersedia dalam denominasi yang Anda tentukan
+                if (denominations.includes(denominations[i]) && denominations.includes(denominations[j])) {
+                    if (sum === amount && !possiblePayments.includes(sum)) {
+                        possiblePayments.unshift(sum);
                     }
                 }
             }
+        }
 
-            // Menghapus nominal denominasi yang sama dengan jumlah pembelian yang dimasukkan
-            possiblePayments = possiblePayments.filter(payment => payment !== amount);
+        possiblePayments = possiblePayments.filter(payment => payment !== amount);
 
-            // Membuat tombol-tombol untuk setiap kemungkinan pembayaran
-            for (var i = 0; i < possiblePayments.length; i++) {
-                var paymentAmount = possiblePayments[i];
-                buttonCol = document.createElement("div");
-                buttonCol.className = "col-md-4 mb-2";
-
-                button = document.createElement("button");
-                button.className = "btn btn-primary";
-                button.style.width = "100%";
-                button.innerHTML = "Rp " + paymentAmount.toLocaleString(); // Format jumlah uang dengan koma sebagai pemisah ribuan
-                button.setAttribute("value", paymentAmount); // Set nilai tombol sesuai dengan jumlah pembayaran
-
-                button.addEventListener("click", function() {
-                    // Handler untuk menampilkan nilai tombol yang diklik
-                    console.log("Uang yang dipilih: Rp " + parseInt(this.value).toLocaleString());
-                });
-
-                buttonCol.appendChild(button);
-                buttonRow.appendChild(buttonCol);
-            }
-
-            // Membuat tombol "Uang Pas"
+        for (var i = 0; i < possiblePayments.length; i++) {
+            var paymentAmount = possiblePayments[i];
             buttonCol = document.createElement("div");
             buttonCol.className = "col-md-4 mb-2";
 
             button = document.createElement("button");
             button.className = "btn btn-primary";
             button.style.width = "100%";
-            button.innerHTML = "Uang Pas";
+            button.innerHTML = "Rp " + paymentAmount.toLocaleString(); 
+            button.setAttribute("value", paymentAmount);
 
             buttonCol.appendChild(button);
             buttonRow.appendChild(buttonCol);
         }
-    }
-    
-    var inputAmount = document.getElementById("inputAmount");
 
-    inputAmount.addEventListener("input", function() {
-        var amount = parseInt(this.value); 
-        createButtons(amount);
-    });
+        buttonCol = document.createElement("div");
+        buttonCol.className = "col-md-4 mb-2";
+
+        button = document.createElement("button");
+        button.className = "btn btn-warning";
+        button.style.width = "100%";
+        button.innerHTML = "Uang Pas";
+        button.setAttribute("data-amount", paymentAmount); 
+
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+
+            var selectedAmount = parseInt(this.getAttribute("data-amount"));
+            if (selectedAmount === amount) {
+                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString(), "success");
+            } else {
+                var change = selectedAmount - amount;
+                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString() + "\nKembalian: Rp " + change.toLocaleString(), "success");
+            }
+        });
+
+        buttonCol.appendChild(button);
+        buttonRow.appendChild(buttonCol);
+    }
+}
+
+var inputAmount = document.getElementById("inputAmount");
+
+inputAmount.addEventListener("input", function() {
+    var amount = parseInt(this.value);
+    createButtons(amount);
+});
+
 </script>
