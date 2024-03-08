@@ -43,6 +43,14 @@
     </body>
 </html>
 <script>
+    
+    var inputAmount = document.getElementById("inputAmount");
+
+    inputAmount.addEventListener("input", function() {
+        var amount = parseInt(this.value);
+        createButtons(amount);
+    });
+
   function createButtons(amount) {
     var buttonRow = document.getElementById("buttonRow");
     buttonRow.innerHTML = "";
@@ -62,11 +70,15 @@
             event.preventDefault();
 
             var selectedAmount = parseInt(this.getAttribute("data-amount"));
-            if (selectedAmount === amount) {
-                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString(), "success");
-            } else {
+            if (!isNaN(selectedAmount)) {
                 var change = selectedAmount - amount;
-                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString() + "\nKembalian: Rp " + change.toLocaleString(), "success");
+                if (change >= 0) {
+                    Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString() + "\nKembalian: Rp " + change.toLocaleString(), "success");
+                } else {
+                    Swal.fire("Error", "Pilih nominal yang cukup untuk membayar", "error");
+                }
+            } else {
+                Swal.fire("Error", "Masukkan angka yang valid", "error");
             }
         });
 
@@ -110,6 +122,22 @@
             button.style.width = "100%";
             button.innerHTML = "Rp " + paymentAmount.toLocaleString(); 
             button.setAttribute("value", paymentAmount);
+            button.setAttribute("data-amount", paymentAmount); 
+            button.addEventListener("click", function(event) {
+                event.preventDefault();
+
+                var selectedAmount = parseInt(this.getAttribute("data-amount"));
+                if (!isNaN(selectedAmount)) {
+                    var change = selectedAmount - amount;
+                    if (change >= 0) {
+                        Swal.fire("Pembayaran", "Nominal yang dibayarkan: Rp " + selectedAmount.toLocaleString() + "<br>Kembalian: Rp " + change.toLocaleString(), "success");
+                    } else {
+                        Swal.fire("Error", "Pilih nominal yang cukup untuk membayar", "error");
+                    }
+                } else {
+                    Swal.fire("Error", "Masukkan angka yang valid", "error");
+                }
+            });
 
             buttonCol.appendChild(button);
             buttonRow.appendChild(buttonCol);
@@ -122,30 +150,23 @@
         button.className = "btn btn-warning";
         button.style.width = "100%";
         button.innerHTML = "Uang Pas";
-        button.setAttribute("data-amount", paymentAmount); 
+
+        button.setAttribute("data-amount", amount); 
 
         button.addEventListener("click", function(event) {
             event.preventDefault();
 
             var selectedAmount = parseInt(this.getAttribute("data-amount"));
-            if (selectedAmount === amount) {
-                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString(), "success");
-            } else {
-                var change = selectedAmount - amount;
-                Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString() + "\nKembalian: Rp " + change.toLocaleString(), "success");
+            console.log(selectedAmount)
+            if (!isNaN(selectedAmount)) {
+                Swal.fire("Pembayaran", "Uang Pas : Rp " + selectedAmount.toLocaleString());
             }
+
         });
 
         buttonCol.appendChild(button);
         buttonRow.appendChild(buttonCol);
     }
 }
-
-var inputAmount = document.getElementById("inputAmount");
-
-inputAmount.addEventListener("input", function() {
-    var amount = parseInt(this.value);
-    createButtons(amount);
-});
 
 </script>
