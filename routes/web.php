@@ -15,3 +15,4 @@ use App\Http\Controllers\MasterController;
 */
 
 Route::get('/', [MasterController::class, 'index'])->name('index');
+Route::get('/getPaymentOptions', [MasterController::class, 'getPossiblePayments'])->name('getPaymentOptions');

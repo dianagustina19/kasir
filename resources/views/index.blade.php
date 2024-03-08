@@ -38,86 +38,43 @@
         </section>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="js/scripts.js"></script>
     </body>
 </html>
 <script>
-    
     var inputAmount = document.getElementById("inputAmount");
 
     inputAmount.addEventListener("input", function() {
         var amount = parseInt(this.value);
-        createButtons(amount);
+        if (!isNaN(amount)) {
+            $.ajax({
+                url: '{{ route('getPaymentOptions', ':amount') }}'.replace(':amount', amount),
+                type: "GET",
+                contentType: "application/json",
+                success: function(response) {
+                    createButtons(response, amount);
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
     });
 
-  function createButtons(amount) {
-    var buttonRow = document.getElementById("buttonRow");
-    buttonRow.innerHTML = "";
-
-    if (amount > 100000) {
-        var buttonCol = document.createElement("div");
-        buttonCol.className = "col-md-4 mb-2";
-
-        var button = document.createElement("button");
-        button.className = "btn btn-Warning";
-        button.style.width = "100%";
-        button.innerHTML = "Uang Pas";
-
-        button.setAttribute("data-amount", paymentAmount); 
+    function createButtons(possiblePayments, amount) {
         
-        button.addEventListener("click", function(event) {
-            event.preventDefault();
-
-            var selectedAmount = parseInt(this.getAttribute("data-amount"));
-            if (!isNaN(selectedAmount)) {
-                var change = selectedAmount - amount;
-                if (change >= 0) {
-                    Swal.fire("Pembayaran", "Nominal yang dipilih: Rp " + selectedAmount.toLocaleString() + "\nKembalian: Rp " + change.toLocaleString(), "success");
-                } else {
-                    Swal.fire("Error", "Pilih nominal yang cukup untuk membayar", "error");
-                }
-            } else {
-                Swal.fire("Error", "Masukkan angka yang valid", "error");
-            }
-        });
-
-        buttonCol.appendChild(button);
-        buttonRow.appendChild(buttonCol);
-    } else {
-        var buttonCol;
-        var button;
-        var denominations = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100];
-        var possiblePayments = [];
-
-        // Mencari denominasi yang lebih besar dari jumlah belanja dan tersedia
-        for (var i = denominations.length - 1; i >= 0; i--) {
-            if (denominations[i] >= amount) {
-                possiblePayments.push(denominations[i]);
-            }
-        }
-
-        // Menambahkan kombinasi penjumlahan pecahan uang yang memungkinkan dengan denominasi yang tersedia
-        for (var i = 0; i < denominations.length; i++) {
-            for (var j = 0; j < denominations.length; j++) {
-                var sum = denominations[i] + denominations[j];
-                // Memeriksa apakah kedua pecahan uang yang digunakan tersedia dalam denominasi yang Anda tentukan
-                if (denominations.includes(denominations[i]) && denominations.includes(denominations[j])) {
-                    if (sum === amount && !possiblePayments.includes(sum)) {
-                        possiblePayments.unshift(sum);
-                    }
-                }
-            }
-        }
-
-        possiblePayments = possiblePayments.filter(payment => payment !== amount);
+        var buttonRow = document.getElementById("buttonRow");
+        buttonRow.innerHTML = "";
 
         for (var i = 0; i < possiblePayments.length; i++) {
             var paymentAmount = possiblePayments[i];
-            buttonCol = document.createElement("div");
+            var buttonCol = document.createElement("div");
             buttonCol.className = "col-md-4 mb-2";
 
-            button = document.createElement("button");
+            var button = document.createElement("button");
             button.className = "btn btn-primary";
             button.style.width = "100%";
             button.innerHTML = "Rp " + paymentAmount.toLocaleString(); 
@@ -125,7 +82,6 @@
             button.setAttribute("data-amount", paymentAmount); 
             button.addEventListener("click", function(event) {
                 event.preventDefault();
-
                 var selectedAmount = parseInt(this.getAttribute("data-amount"));
                 if (!isNaN(selectedAmount)) {
                     var change = selectedAmount - amount;
@@ -143,10 +99,10 @@
             buttonRow.appendChild(buttonCol);
         }
 
-        buttonCol = document.createElement("div");
+        var buttonCol = document.createElement("div");
         buttonCol.className = "col-md-4 mb-2";
 
-        button = document.createElement("button");
+        var button = document.createElement("button");
         button.className = "btn btn-warning";
         button.style.width = "100%";
         button.innerHTML = "Uang Pas";
@@ -155,18 +111,14 @@
 
         button.addEventListener("click", function(event) {
             event.preventDefault();
-
             var selectedAmount = parseInt(this.getAttribute("data-amount"));
-            console.log(selectedAmount)
             if (!isNaN(selectedAmount)) {
                 Swal.fire("Pembayaran", "Uang Pas : Rp " + selectedAmount.toLocaleString());
             }
-
         });
 
         buttonCol.appendChild(button);
         buttonRow.appendChild(buttonCol);
     }
-}
-
 </script>
+
