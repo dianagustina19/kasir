@@ -38,9 +38,9 @@
         </section>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="{{asset('js/jquery.js')}}"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="js/scripts.js"></script>
+        <script src="{{asset('js/scripts.js')}}"></script>
     </body>
 </html>
 <script>
@@ -50,7 +50,7 @@
         var amount = parseInt(this.value);
         if (!isNaN(amount)) {
             $.ajax({
-                url: '{{ route('getPaymentOptions', ':amount') }}'.replace(':amount', amount),
+                url: '/getPaymentOptions/' + amount,
                 type: "GET",
                 contentType: "application/json",
                 success: function(response) {
@@ -60,6 +60,7 @@
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
                 }
+                
             });
         }
     });
@@ -113,7 +114,7 @@
             event.preventDefault();
             var selectedAmount = parseInt(this.getAttribute("data-amount"));
             if (!isNaN(selectedAmount)) {
-                Swal.fire("Pembayaran", "Uang Pas : Rp " + selectedAmount.toLocaleString());
+                Swal.fire("Pembayaran", "Uang Pas : Rp " + selectedAmount.toLocaleString(),'success');
             }
         });
 
