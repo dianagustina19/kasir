@@ -60,9 +60,9 @@ class MasterController extends Controller
             $possiblePayments = array_merge($possiblePayments, $anotherpayment);
             sort($possiblePayments);
 
-            $possiblePayments = array_filter($possiblePayments, function($payment) use ($amount) {
-                return $payment !== $amount;
-            });
+            // $possiblePayments = array_filter($possiblePayments, function($payment) use ($amount) {
+            //     return $payment !== $amount;
+            // });
         }
       
         return $possiblePayments;

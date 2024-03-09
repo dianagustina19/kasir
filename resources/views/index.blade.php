@@ -121,5 +121,11 @@
         buttonCol.appendChild(button);
         buttonRow.appendChild(buttonCol);
     }
+
+    document.getElementById('inputAmount').addEventListener('input', function(event) {
+        var inputValue = this.value;
+        inputValue = inputValue.replace(/[^0-9]/g, '');
+        this.value = inputValue;
+    });
 </script>
 
